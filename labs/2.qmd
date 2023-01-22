@@ -1,7 +1,7 @@
 ---
 title: "Lab 2: EDA and data visualization"
 author: "Toufic Ayoub"
-date: 18/01/23
+date: today
 date-format: "DD/MM/YY"
 format: 
     pdf:
@@ -42,17 +42,15 @@ stationDelays <- delay_2022 |>
                   arrange(desc(mean_min_delay))
                   
 ggplot(data = stationDelays[1:5,], aes(x=station, y=mean_min_delay)) + 
-  geom_bar(stat = 'identity') + facet_grid(~line) 
+  geom_bar(stat = 'identity') + facet_grid(~line) + 
+  theme(axis.text.x = element_text(angle = 90))
 
 ```
 
-## 2. Using the `opendatatoronto` package, download the data on mayoral campaign contributions for 2014. Hints:
-    + find the ID code you need for the package you need by searching for 'campaign' in the `all_data` tibble above
-    + you will then need to `list_package_resources` to get ID for the data file
-    + note: the 2014 file you will get from `get_resource` has a bunch of different campaign contributions, so just keep the data that relates to the Mayor election
+## 2. Using the `opendatatoronto` package, download the data on mayoral campaign contributions for 2014. 
   
   
-```{r}
+```{r, warning=FALSE, message=FALSE}
 res <- list_package_resources("f6651a40-2f52-46fc-9e04-b760c16edd5c")
 mayor_2014_ids <- res |> filter(name=="campaign-contributions-2014-data") |> 
                     select(id) |> 
@@ -86,6 +84,11 @@ mayor_2014 = mayor_2014 |>
 
 
 ## 5. Visually explore the distribution of values of the contributions. What contributions are notable outliers? Do they share a similar characteristic(s)? It may be useful to plot the distribution of contributions without these outliers to get a better sense of the majority of the data. 
+```{r}
+findoutlier <- function(x) {
+  return(x < quantile(x, .25) - 1.5*IQR(x) | x > quantile(x, .75) + 1.5*IQR(x))
+}
+```
 
 ```{r}
 mayor_2014_outlier = mayor_2014 |> 
@@ -110,9 +113,9 @@ mayor_2014_outlier |>
 
 
 ## 6. List the top five candidates in each of these categories:
-    + total contributions
-    + mean contribution
-    + number of contributions
+### - total contributions
+### - mean contribution
+### - number of contributions
     
 ```{r}
 mayor_2014_summary = mayor_2014 |>
